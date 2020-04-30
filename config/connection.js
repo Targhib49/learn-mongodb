@@ -5,6 +5,7 @@ mongoose
     .connect(DATABASE_LIVE, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        useFindAndModify: false
     })
     .then(() => {
         console.log("Success connect to database");

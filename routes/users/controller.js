@@ -1,29 +1,37 @@
 const { User } = require("../../models");
+const md5 = require("md5")
+const bcrypt = require("bcryptjs");
 
 module.exports = {
     getAll: async (req, res) => {
         try {
             const users = await User.find({});
+            console.log(md5("123"));
+            
 
             res.status(200).json({ message: "Get All Users", data: users });
         } catch (error) {
             console.log(error);
         }
     },
-    create: async (req, res) => {
+    create: (req, res) => {
         try {
             const { fullname, username, email, password } = req.body;
 
-            const users = await User.create({
-                fullname,
-                username,
-                email,
-                password,
-            });
+            bcrypt.genSalt(10, function (err, salt) {
+                bcrypt.hash(password, salt, async function (err, hash) {
+                    const users = await User.create({
+                        fullname,
+                        username,
+                        email,
+                        password: hash,
+                    });
 
-            res.status(201).json({
-                message: "Add New User is successfully",
-                data: users,
+                    res.status(201).json({
+                        message: "Add New User is successfully",
+                        data: users,
+                    });
+                });
             });
         } catch (error) {
             console.log(error);
@@ -65,4 +73,19 @@ module.exports = {
             console.log(error);
         }
     },
+    login: async (req, res) => {
+        const { email, password } = req.body;
+
+        const result = await User.findOne({ email: email });
+
+        bcrypt.compare(password, result.password).then((response) => {
+            if (response === true) {
+                res.status(200).send(result);
+            } else {
+                res.status(401).send({
+                    message: "Your are not allowed to enter this api",
+                });
+            }
+        });
+    }
 };

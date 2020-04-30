@@ -10,6 +10,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/users", require("./routes/users"));
+app.use("/movies", require("./routes/movies"));
 
 if (db) {
     app.listen(PORT, () => {
